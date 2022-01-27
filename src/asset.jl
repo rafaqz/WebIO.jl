@@ -79,7 +79,10 @@ Sync(Asset[Asset("js", nothing, "foo.js"), Asset("js", "bar", "bar.js")])
 """
 struct Sync{A<:Array}
     imports::A
-    Sync(imports::A) where A<:Array = new{A}([ensure_asset(asset) for asset in imports])
+    Sync(imports::A) where A<:Array = begin
+        assets = [ensure_asset(asset) for asset in imports]
+        new{typeof(assets)}(assets)
+    end
 end
 Sync(assets...) = Sync([assets...])
 
@@ -96,7 +99,11 @@ If the imports need to be imported sequentially, use [`Sync`](@ref) instead.
 """
 struct Async{A<:Array}
     imports::A
-    Async(imports::A) where A<:Array = new{A}([ensure_asset(asset) for asset in imports])
+
+    function Async(imports::A) where A<:Array 
+        assets = [ensure_asset(asset) for asset in imports]
+        new{typeof(assets)}(assets)
+    end
 end
 Async(assets...) = Async([assets...])
 
